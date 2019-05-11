@@ -119,7 +119,6 @@ resource "aws_emr_cluster" "cluster" {
       jar  = "command-runner.jar"
       args = ["state-pusher-script"]
     }
-
     name = "Setup Hadoop Debugging"
   }
 
