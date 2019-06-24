@@ -1,6 +1,6 @@
 # terraform-aws-emr-cluster
 
-A Terraform module to create an Amazon Web Services (AWS) Elastic MapReduce (EMR) cluster.
+A Terraform module to create an Amazon Web Services (AWS) Elastic MapReduce (EMR) cluster. Available through the [Terraform registry](https://registry.terraform.io/modules/dwp/emr-cluster/aws/0.2.2)
 
 ## Usage
 
