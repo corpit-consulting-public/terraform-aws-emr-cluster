@@ -53,23 +53,23 @@ variable "custom_policy_arns" {
 }
 
 variable "master_instance_group" {
-  default = {
+  default = [{
       name           = "MasterInstanceGroup"
       instance_role  = "MASTER"
       instance_type  = "m3.xlarge"
       instance_count = 1
-    }
-  type = "map"
+    }]
+  type = "list"
 }
 
 variable "core_instance_group" {    
-    default = {
+    default = [{
       name           = "CoreInstanceGroup"
       instance_role  = "CORE"
       instance_type  = "m3.xlarge"
       instance_count = "1"
-    }
-  type = "map"
+    }]
+  type = "list"
 }
 
 variable bootstrap_actions_list {
