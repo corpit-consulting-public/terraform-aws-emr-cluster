@@ -27,21 +27,19 @@ module "emr" {
   key_name       = "hector"
   subnet_id      = "subnet-e3sdf343"
 
-  instance_groups = [
-    {
+  master_instance_group = {
       name           = "MasterInstanceGroup"
       instance_role  = "MASTER"
       instance_type  = "m3.xlarge"
       instance_count = "1"
-    },
-    {
+    }
+  core_instance_group = {
       name           = "CoreInstanceGroup"
       instance_role  = "CORE"
       instance_type  = "m3.xlarge"
       instance_count = "1"
       bid_price      = "0.30"
-    },
-  ]
+    }
 
   bootstrap_name = "runif"
   bootstrap_uri  = "s3://elasticmapreduce/bootstrap-actions/run-if"
@@ -62,7 +60,8 @@ module "emr" {
 - `configurations` - JSON array of EMR application configurations
 - `key_name` - EC2 Key pair name
 - `subnet_id` - Subnet used to house the EMR nodes
-- `instance_groups` - List of objects for each desired instance group (see section below)
+- `master_instance_group` - List of objects for each desired instance group (see section below)
+- `core_instance_group` - List of objects for each desired instance group (see section below)
 - `bootstrap_name` - Name for the bootstrap action
 - `bootstrap_uri` - S3 URI for the bootstrap action script
 - `bootstrap_args` - A list of arguments to the bootstrap action script (default: `[]`)
@@ -73,13 +72,14 @@ module "emr" {
 ## Instance Group Example
 
 ```hcl
-[
+master:
     {
       name           = "MasterInstanceGroup"
       instance_role  = "MASTER"
       instance_type  = "m3.xlarge"
       instance_count = 1
-    },
+    }
+core:
     {
       name           = "CoreInstanceGroup"
       instance_role  = "CORE"
@@ -87,7 +87,6 @@ module "emr" {
       instance_count = "1"
       bid_price      = "0.30"
     },
-]
 ```
 
 ## Outputs

@@ -52,24 +52,24 @@ variable "custom_policy_arns" {
   description = "List of policy arns to add to instance profile role"
 }
 
-variable "instance_groups" {
-  default = [
-    {
+variable "master_instance_group" {
+  default = {
       name           = "MasterInstanceGroup"
       instance_role  = "MASTER"
       instance_type  = "m3.xlarge"
       instance_count = 1
-    },
-    {
+    }
+  type = "map"
+}
+
+variable "core_instance_group" {    
+    default = {
       name           = "CoreInstanceGroup"
       instance_role  = "CORE"
       instance_type  = "m3.xlarge"
       instance_count = "1"
-      bid_price      = "0.30"
-    },
-  ]
-
-  type = "list"
+    }
+  type = "map"
 }
 
 variable "bootstrap_name" {}
