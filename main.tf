@@ -134,7 +134,8 @@ resource "aws_emr_cluster" "cluster" {
     name = "${var.step["name"]}"
   }
 
-  instance_group = "${var.instance_groups}"
+  master_instance_group = "${var.master_instance_group}"
+  core_instance_group = "${var.core_instance_group}"
 
   bootstrap_action {
     path = "${var.bootstrap_uri}"
