@@ -137,11 +137,7 @@ resource "aws_emr_cluster" "cluster" {
   master_instance_group = "${var.master_instance_group}"
   core_instance_group = "${var.core_instance_group}"
 
-  bootstrap_action {
-    path = "${var.bootstrap_uri}"
-    name = "${var.bootstrap_name}"
-    args = "${var.bootstrap_args}"
-  }
+  bootstrap_action = "${var.bootstrap_actions_list}"
 
   log_uri      = "${var.log_uri}"
   service_role = "${aws_iam_role.emr_service_role.arn}"
