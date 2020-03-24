@@ -72,13 +72,8 @@ variable "core_instance_group" {
   type = "map"
 }
 
-variable "bootstrap_name" {}
-
-variable "bootstrap_uri" {}
-
-variable "bootstrap_args" {
-  default = []
-  type    = "list"
+variable bootstrap_actions_list {
+    type    = "list"
 }
 
 variable "log_uri" {}
