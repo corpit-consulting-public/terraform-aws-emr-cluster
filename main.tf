@@ -16,16 +16,16 @@ data "aws_iam_policy_document" "emr_assume_role" {
 
 resource "aws_iam_role" "emr_service_role" {
   name               = "emr${var.environment}ServiceRole"
-  assume_role_policy = "${data.aws_iam_policy_document.emr_assume_role.json}"
+  assume_role_policy = data.aws_iam_policy_document.emr_assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "emr_service_role" {
-  role       = "${aws_iam_role.emr_service_role.name}"
+  role       = aws_iam_role.emr_service_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_service_role" {
-  role       = "${aws_iam_role.emr_service_role.name}"
+  role       = aws_iam_role.emr_service_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
@@ -47,47 +47,47 @@ data "aws_iam_policy_document" "ec2_assume_role" {
 
 resource "aws_iam_role" "emr_ec2_instance_profile" {
   name               = "${var.environment}JobFlowInstanceProfile"
-  assume_role_policy = "${data.aws_iam_policy_document.ec2_assume_role.json}"
+  assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "emr_ec2_instance_profile" {
-  role       = "${aws_iam_role.emr_ec2_instance_profile.name}"
+  role       = aws_iam_role.emr_ec2_instance_profile.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role"
 }
 
 resource "aws_iam_role_policy_attachment" "emr_ec2_instance_profile_custom_policies" {
-  count      = "${var.custom_policy_count}"
-  policy_arn = "${element(var.custom_policy_arns, count.index)}"
-  role       = "${aws_iam_role.emr_ec2_instance_profile.name}"
+  count      = var.custom_policy_count
+  policy_arn = element(var.custom_policy_arns, count.index)
+  role       = aws_iam_role.emr_ec2_instance_profile.name
 }
 
 resource "aws_iam_instance_profile" "emr_ec2_instance_profile" {
-  name = "${aws_iam_role.emr_ec2_instance_profile.name}"
-  role = "${aws_iam_role.emr_ec2_instance_profile.name}"
+  name = aws_iam_role.emr_ec2_instance_profile.name
+  role = aws_iam_role.emr_ec2_instance_profile.name
 }
 
 #
 # Security group resources
 #
 resource "aws_security_group" "emr_master" {
-  vpc_id                 = "${var.vpc_id}"
+  vpc_id                 = var.vpc_id
   revoke_rules_on_delete = true
 
-  tags {
+  tags = {
     Name        = "sg${var.name}Master"
-    Project     = "${var.project}"
-    Environment = "${var.environment}"
+    Project     = var.project
+    Environment = var.environment
   }
 }
 
 resource "aws_security_group" "emr_slave" {
-  vpc_id                 = "${var.vpc_id}"
+  vpc_id                 = var.vpc_id
   revoke_rules_on_delete = true
 
-  tags {
+  tags = {
     Name        = "sg${var.name}Slave"
-    Project     = "${var.project}"
-    Environment = "${var.environment}"
+    Project     = var.project
+    Environment = var.environment
   }
 }
 
@@ -95,27 +95,27 @@ resource "aws_security_group" "emr_slave" {
 # EMR resources
 #
 resource "aws_emr_cluster" "cluster" {
-  name                              = "${var.name}"
-  release_label                     = "${var.release_label}"
-  applications                      = "${var.applications}"
-  configurations                    = "${var.configurations}"
-  keep_job_flow_alive_when_no_steps = "${var.keep_job_flow_alive_when_no_steps}"
+  name                              = var.name
+  release_label                     = var.release_label
+  applications                      = var.applications
+  configurations                    = var.configurations
+  keep_job_flow_alive_when_no_steps = var.keep_job_flow_alive_when_no_steps
 
   ec2_attributes {
-    key_name                          = "${var.key_name}"
-    subnet_id                         = "${var.subnet_id}"
-    service_access_security_group     = "${var.service_access_security_group_id}"
-    additional_master_security_groups = "${var.additional_master_security_group_id}"
-    additional_slave_security_groups  = "${var.additional_slave_security_group_id}"
-    emr_managed_master_security_group = "${aws_security_group.emr_master.id}"
-    emr_managed_slave_security_group  = "${aws_security_group.emr_slave.id}"
-    instance_profile                  = "${aws_iam_instance_profile.emr_ec2_instance_profile.arn}"
+    key_name                          = var.key_name
+    subnet_id                         = var.subnet_id
+    service_access_security_group     = var.service_access_security_group_id
+    additional_master_security_groups = var.additional_master_security_group_id
+    additional_slave_security_groups  = var.additional_slave_security_group_id
+    emr_managed_master_security_group = aws_security_group.emr_master.id
+    emr_managed_slave_security_group  = aws_security_group.emr_slave.id
+    instance_profile                  = aws_iam_instance_profile.emr_ec2_instance_profile.arn
   }
 
   step {
     action_on_failure = "TERMINATE_CLUSTER"
 
-    "hadoop_jar_step" {
+    hadoop_jar_step {
       jar  = "command-runner.jar"
       args = ["state-pusher-script"]
     }
@@ -124,27 +124,87 @@ resource "aws_emr_cluster" "cluster" {
   }
 
   step {
-    action_on_failure = "${var.step["action_on_failure"]}"
+    action_on_failure = var.step["action_on_failure"]
 
-    "hadoop_jar_step" {
-      jar  = "${var.step["jar"]}"
-      args = ["${var.step_args}"]
+    hadoop_jar_step {
+      jar  = var.step["jar"]
+      args = var.step_args
     }
 
-    name = "${var.step["name"]}"
+    name = var.step["name"]
   }
 
-  master_instance_group = "${var.master_instance_group}"
-  core_instance_group = "${var.core_instance_group}"
+  dynamic "master_instance_group" {
+    for_each = var.master_instance_group
+    content {
+      # TF-UPGRADE-TODO: The automatic upgrade tool can't predict
+      # which keys might be set in maps assigned here, so it has
+      # produced a comprehensive set here. Consider simplifying
+      # this after confirming which keys can be set in practice.
 
-  bootstrap_action = "${var.bootstrap_actions_list}"
+      bid_price      = lookup(master_instance_group.value, "bid_price", null)
+      instance_count = lookup(master_instance_group.value, "instance_count", null)
+      instance_type  = master_instance_group.value.instance_type
+      name           = lookup(master_instance_group.value, "name", null)
 
-  log_uri      = "${var.log_uri}"
-  service_role = "${aws_iam_role.emr_service_role.arn}"
+      dynamic "ebs_config" {
+        for_each = lookup(master_instance_group.value, "ebs_config", [])
+        content {
+          iops                 = lookup(ebs_config.value, "iops", null)
+          size                 = ebs_config.value.size
+          type                 = ebs_config.value.type
+          volumes_per_instance = lookup(ebs_config.value, "volumes_per_instance", null)
+        }
+      }
+    }
+  }
+  dynamic "core_instance_group" {
+    for_each = var.core_instance_group
+    content {
+      # TF-UPGRADE-TODO: The automatic upgrade tool can't predict
+      # which keys might be set in maps assigned here, so it has
+      # produced a comprehensive set here. Consider simplifying
+      # this after confirming which keys can be set in practice.
 
-  tags {
-    Name        = "${var.name}"
-    Project     = "${var.project}"
-    Environment = "${var.environment}"
+      autoscaling_policy = lookup(core_instance_group.value, "autoscaling_policy", null)
+      bid_price          = lookup(core_instance_group.value, "bid_price", null)
+      instance_count     = lookup(core_instance_group.value, "instance_count", null)
+      instance_type      = core_instance_group.value.instance_type
+      name               = lookup(core_instance_group.value, "name", null)
+
+      dynamic "ebs_config" {
+        for_each = lookup(core_instance_group.value, "ebs_config", [])
+        content {
+          iops                 = lookup(ebs_config.value, "iops", null)
+          size                 = ebs_config.value.size
+          type                 = ebs_config.value.type
+          volumes_per_instance = lookup(ebs_config.value, "volumes_per_instance", null)
+        }
+      }
+    }
+  }
+
+  dynamic "bootstrap_action" {
+    for_each = var.bootstrap_actions_list
+    content {
+      # TF-UPGRADE-TODO: The automatic upgrade tool can't predict
+      # which keys might be set in maps assigned here, so it has
+      # produced a comprehensive set here. Consider simplifying
+      # this after confirming which keys can be set in practice.
+
+      args = lookup(bootstrap_action.value, "args", null)
+      name = bootstrap_action.value.name
+      path = bootstrap_action.value.path
+    }
+  }
+
+  log_uri      = var.log_uri
+  service_role = aws_iam_role.emr_service_role.arn
+
+  tags = {
+    Name        = var.name
+    Project     = var.project
+    Environment = var.environment
   }
 }
+

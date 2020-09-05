@@ -6,9 +6,11 @@ variable "environment" {
   default = "Unknown"
 }
 
-variable "name" {}
+variable "name" {
+}
 
-variable "vpc_id" {}
+variable "vpc_id" {
+}
 
 variable "release_label" {
   default = "emr-5.8.0"
@@ -16,14 +18,17 @@ variable "release_label" {
 
 variable "applications" {
   default = ["Spark"]
-  type    = "list"
+  type    = list
 }
 
-variable "configurations" {}
+variable "configurations" {
+}
 
-variable "key_name" {}
+variable "key_name" {
+}
 
-variable "subnet_id" {}
+variable "subnet_id" {
+}
 
 variable "service_access_security_group_id" {
   description = "Security group with access to AWS Services over internet gateway. Applied to cluster service"
@@ -42,44 +47,49 @@ variable "keep_job_flow_alive_when_no_steps" {
 }
 
 variable "custom_policy_count" {
-  default = 0
+  default     = 0
   description = "Number of custom policy arns in custom_policy_arns"
 }
 
 variable "custom_policy_arns" {
-  type    = "list"
-  default = []
+  type        = list
+  default     = []
   description = "List of policy arns to add to instance profile role"
 }
 
 variable "master_instance_group" {
-  default = [{
+  default = [
+    {
       name           = "MasterInstanceGroup"
       instance_role  = "MASTER"
       instance_type  = "m3.xlarge"
       instance_count = 1
-    }]
-  type = "list"
+    },
+  ]
+  type = list
 }
 
-variable "core_instance_group" {    
-    default = [{
+variable "core_instance_group" {
+  default = [
+    {
       name           = "CoreInstanceGroup"
       instance_role  = "CORE"
       instance_type  = "m3.xlarge"
       instance_count = "1"
-    }]
-  type = "list"
+    },
+  ]
+  type = list
 }
 
-variable bootstrap_actions_list {
-    type    = "list"
+variable "bootstrap_actions_list" {
+  type = list
 }
 
-variable "log_uri" {}
+variable "log_uri" {
+}
 
 variable "step" {
-  type = "map"
+  type = map(string)
 
   default = {
     name              = "My Step"
@@ -89,6 +99,7 @@ variable "step" {
 }
 
 variable "step_args" {
-  type    = "list"
+  type    = list
   default = []
 }
+
