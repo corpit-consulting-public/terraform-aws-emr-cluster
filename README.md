@@ -50,24 +50,31 @@ module "emr" {
   environment = "Staging"
 }
 ```
+## Inputs
 
-## Variables
-
-- `name` - Name of EMR cluster
-- `vpc_id` - ID of VPC meant to house cluster
-- `release_label` - EMR release version to use (default: `emr-5.8.0`)
-- `applications` - A list of EMR release applications (default: `["Spark"]`)
-- `configurations` - JSON array of EMR application configurations
-- `key_name` - EC2 Key pair name
-- `subnet_id` - Subnet used to house the EMR nodes
-- `master_instance_group` - List of objects for each desired instance group (see section below)
-- `core_instance_group` - List of objects for each desired instance group (see section below)
-- `bootstrap_name` - Name for the bootstrap action
-- `bootstrap_uri` - S3 URI for the bootstrap action script
-- `bootstrap_args` - A list of arguments to the bootstrap action script (default: `[]`)
-- `log_uri` - S3 URI of the EMR log destination, must begin with `s3n://` and end with trailing slashes
-- `project` - Name of project this cluster is for (default: `Unknown`)
-- `environment` - Name of environment this cluster is targeting (default: `Unknown`)
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| additional\_master\_security\_group\_id | Additional security group for master node | string | n/a | yes |
+| additional\_slave\_security\_group\_id | Additional security group for slave nodes | string | n/a | yes |
+| bootstrap\_actions\_list |  | list | n/a | yes |
+| configurations |  | string | n/a | yes |
+| key\_name |  | string | n/a | yes |
+| log\_uri |  | string | n/a | yes |
+| name |  | string | n/a | yes |
+| service\_access\_security\_group\_id | Security group with access to AWS Services over internet gateway. Applied to cluster service | string | n/a | yes |
+| subnet\_id |  | string | n/a | yes |
+| vpc\_id |  | string | n/a | yes |
+| applications |  | list | `<list>` | no |
+| core\_instance\_group |  | list | `<list>` | no |
+| custom\_policy\_arns | List of policy arns to add to instance profile role | list | `<list>` | no |
+| custom\_policy\_count | Number of custom policy arns in custom\_policy\_arns | string | `"0"` | no |
+| environment |  | string | `"Unknown"` | no |
+| keep\_job\_flow\_alive\_when\_no\_steps |  | string | `"true"` | no |
+| master\_instance\_group |  | list | `<list>` | no |
+| project |  | string | `"Unknown"` | no |
+| release\_label |  | string | `"emr-5.8.0"` | no |
+| step |  | map(string) | `<map>` | no |
+| step\_args |  | list | `<list>` | no |
 
 ## Instance Group Example
 
@@ -91,8 +98,11 @@ core:
 
 ## Outputs
 
-- `id` - The EMR cluster ID
-- `name` - The EMR cluster name
-- `master_public_dns` - The EMR master public FQDN
-- `master_security_group_id` - Security group ID of the master instance/s
-- `slave_security_group_id` - Security group ID of the slave instance/s
+| Name | Description |
+|------|-------------|
+| id |  |
+| master\_public\_dns |  |
+| master\_security\_group\_id |  |
+| name |  |
+| slave\_security\_group\_id |  |
+
